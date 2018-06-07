@@ -6,7 +6,8 @@
   "private": true,
   "scripts": {
     "dev": "cross-env NODE_ENV=development NODE_APP_MODE=app webpack-dev-server --open --hot",
-    "build": "cross-env NODE_ENV=production NODE_APP_MODE=app webpack --progress --hide-modules"
+    "build": "cross-env NODE_ENV=production NODE_APP_MODE=app webpack --progress --hide-modules",
+    "deploy": "./contracts/deploy.sh"
   },
   "dependencies": {
     "eosjs": "^14.1.0",
