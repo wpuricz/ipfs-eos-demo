@@ -1,23 +1,11 @@
-# vue-starter
+#### IPFS EOS Demo
 
-> A Vue.js starter kit that lets you focus on more programming and less configruation.
+This is a Vue.js example using IPFS to store images and text then storing the hash from IPFS as a string on the EOS blockchain.
 
-## Build Setup
-
-``` bash
-# install dependencies
-npm install
-
-# serve with hot reload at localhost:8080
-npm run dev
-
-# build for production with minification
-npm run build
-```
-# build for production and view the bundle analyzer report
-npm run build --report
+This example shows:
+- Saving text to IPFS, then storing the hash returned by IPFS on the EOS blockchain
+- Saving an image to IPFS, then storing the hash returned by IPFS on the EOS blockchain
+- fetching the hash from the EOS blockchain, then querying IPFS for the image or text
 
 
 
-For detailed explanation on how things work, consult the [docs for vue-loader](http://vuejs.github.io/vue-loader).
-=======
