@@ -3,7 +3,7 @@
     
     <div class="text-section">
     
-      <h3>Save Text to IPFS</h3>
+      <h4>Save Text to IPFS</h4>
       <input type="text" name="ipfstext" v-model="ipfstext"/>
       <button @click="submitText()">Submit</button>
       <div>Hash:{{textSavedHash}}</div>
@@ -13,7 +13,7 @@
 
     <div class="image-section">
     
-      <h3>Save Image to IPFS</h3>
+      <h4>Save Image to IPFS</h4>
       <input type="file" @change="uploadImage"/>
       <br/>
       <div>Hash:{{imageSavedHash}}</div>
@@ -61,8 +61,9 @@ export default {
     };
   },
   async created() {
-    //const result = this.getHashFromBlockchain();
-
+    const rows = await this.getHashFromBlockchain();
+    this.displayImage(rows[0].image_hash);
+    this.displayText(rows[0].text_hash);
   },
   methods: {
     uploadImage(ev) {
@@ -74,7 +75,6 @@ export default {
         let imageHash = result[0].hash;
         console.log("finished on load:" + imageHash);
         await this.saveHashToBlockchain("",imageHash);
-        this.imageSavedHash = imageHash;
         this.displayImage(imageHash);  
       };
       reader.readAsArrayBuffer(file);
@@ -82,6 +82,7 @@ export default {
 
     displayImage(hash) {
       document.getElementById('ipfsImage').src = ipfsHttp + "://" + ipfsHost + "/ipfs/" + hash;
+      this.imageSavedHash = hash;
     },
 
     async submitText() {
@@ -97,22 +98,22 @@ export default {
           let hash = response[0].hash;
           console.log("Hash from IPFS: " + hash);
           await this.saveHashToBlockchain(hash,"");
-          this.displayText()
+          let rows = await this.getHashFromBlockchain();
+          this.displayText(rows[0].text_hash);
       }catch(e) {
         console.log("error saving to ipfs and blockchain: " + e);
       }
 
     },
-    async displayText() {
-      // fetch saved hash from blockchain, and call ipfs to get data
-      let rows = await this.getHashFromBlockchain();
-      let hash = rows[0].text_hash;
+    async displayText(hash) {
+      // fetch text from ipfs
       ipfs.cat(hash, (err, data) => {
         if (err) { return console.error('ipfs cat error', err) }
         this.ipfsSavedText = data.toString('utf8');
-        
+        this.textSavedHash = hash;
       })
     },
+
     async getHashFromBlockchain() {
       let tableQuery = {
         "json":true,
@@ -125,6 +126,7 @@ export default {
       console.log(result.rows);
       return result.rows;
     },
+
     async saveHashToBlockchain(textHash,imageHash) {
       try {
         this.processing = true;
@@ -146,16 +148,13 @@ export default {
         })
         console.log(response)
         return response;
-        //this.processing = false;
 
       }catch(e) {
         console.log(JSON.parse(e).error.what)
         
       }
     }
-    
-    
-    
+
   }
 };
 </script>
