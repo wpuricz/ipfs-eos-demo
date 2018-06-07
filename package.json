@@ -9,6 +9,8 @@
     "build": "cross-env NODE_ENV=production NODE_APP_MODE=app webpack --progress --hide-modules"
   },
   "dependencies": {
+    "eosjs": "^14.1.0",
+    "ipfs-api": "^22.0.1",
     "vue": "^2.4.2",
     "vue-router": "^2.7.0"
   },
