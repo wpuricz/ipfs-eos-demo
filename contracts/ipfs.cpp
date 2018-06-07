@@ -1,7 +1,7 @@
 #include <eosiolib/eosio.hpp>
 #include <eosiolib/print.hpp>
 #include <eosiolib/multi_index.hpp>
-#include <eosiolib/asset.hpp>
+
 
 
 using namespace eosio;

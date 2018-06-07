@@ -1,16 +1,26 @@
 <template>
   <div class="hello">
-    <h3>{{ msg }}</h3>
-    <!-- <input type="file" id="files" ref="files" multiple @change="handleFilesUpload()"/> -->
-    <input type="file" @change="loadTextFromFile"/>
-    <button @click="submitFiles()">Submit</button>
     
-    <div>
-      <!-- <input type="text" name="ipfstext" v-model="ipfstext"/>
-      <button @click="submitText()">Submit</button> -->
-      <!-- <button @click="display()">Display Text</button> -->
-      <!-- <div>Saved Text: {{ipfsSavedText}}</div> -->
+    <div class="text-section">
+    
+      <h3>Save Text to IPFS</h3>
+      <input type="text" name="ipfstext" v-model="ipfstext"/>
+      <button @click="submitText()">Submit</button>
+      <div>Hash:{{textSavedHash}}</div>
+      <div>Saved Text: {{ipfsSavedText}}</div>
+    
     </div>
+
+    <div class="image-section">
+    
+      <h3>Save Image to IPFS</h3>
+      <input type="file" @change="uploadImage"/>
+      <br/>
+      <div>Hash:{{imageSavedHash}}</div>
+      <img id="ipfsImage"   />
+    
+    </div>
+
   </div>
 </template>
 
@@ -27,76 +37,53 @@ let eos = Eos(config); // 127.0.0.1:8888
 let appcode = 'ipfs.app';
 
 // IPFS Initialization
-const IPFS = require('ipfs-api');
-const ipfs = new IPFS({ host: "ipfs.infura.io", port: 5001, protocol: "https" });
-//https://alligator.io/vuejs/file-reader-component/
-//https://forums.asp.net/t/1977558.aspx?HTML5+fileReader+onloadend+event+not+getting+fire+with+while+loop+loop
+const ipfsHost = "ipfs.infura.io";
+const ipfsHttp = "https";
+const ipfsPort = 5001;
 
+const IPFS = require('ipfs-api');
+const ipfs = new IPFS({ host: ipfsHost, port: ipfsPort, protocol: ipfsHttp });
+
+/*
+Credit to 
+https://github.com/ambrosus/ipfs-image-web-upload
+for handling the image upload
+*/
 export default {
-  name: 'hello',
+  name: 'ips-eos-demo',
   data() {
     return {
       msg: 'file upload',
       ipfstext:"",
-      ipfsSavedText:""
+      ipfsSavedText:"",
+      imageSavedHash:"",
+      textSavedHash:""
     };
   },
-  
+  async created() {
+    //const result = this.getHashFromBlockchain();
+
+  },
   methods: {
-    loadTextFromFile(ev) {
+    uploadImage(ev) {
       const file = ev.target.files[0];
       const reader = new FileReader();
-
-      //reader.onload = e => this.$emit("load", e.target.result);
-      //reader.onload = e => console.log(e.target.result);
-      //reader.onload = e => console.log(e.target.result);
-      //reader.readAsText(file);
-      let hash = "QmQ9UsE5S68bDZn4ne8xu55qMTjioL5bfvQmdHcT65Hvsv"
+      
       reader.onload = async () => {
         var result = await ipfs.add([Buffer.from(reader.result)]);
-        console.log(result[0].hash);
-        console.log("finished on load");
+        let imageHash = result[0].hash;
+        console.log("finished on load:" + imageHash);
+        await this.saveHashToBlockchain("",imageHash);
+        this.imageSavedHash = imageHash;
+        this.displayImage(imageHash);  
       };
       reader.readAsArrayBuffer(file);
-
     },
-    handleFilesUpload() {
-      let uploadedFiles = this.$refs.files.files;
-      const file = uploadedFiles[0];
-      console.log(file);
-      let reader = new window.FileReader()
-      //reader.onloadend = () => this.saveToIpfs(reader);
-      reader.onload = function(e) {
-        console.log("on load ccalled");
-      }
-      reader.readAsArrayBuffer(this.file);
-      console.log("finishd handle method");
-      //reader.onloadend() = () => this.convertToBuffer(reader);
-      /*
-        Adds the uploaded file to the files array
-      */
-      // for( var i = 0; i < uploadedFiles.length; i++ ){
-      //   this.files.push( uploadedFiles[i] );
-      // }
-    },
-    saveFileToIpfs(reader) {
 
-      console.log("entered save to ipfs");
-      let ipfsId
-      const buffer = Buffer.from(reader.result)
-      console.log("calling ipfs");
-      ipfs.add(buffer, { progress: (prog) => console.log(`received: ${prog}`) })
-      .then((response) => {
-        console.log(response)
-        ipfsId = response[0].hash
-        console.log(ipfsId)
-        //this.setState({added_file_hash: ipfsId})
-        alert("added file hash: " + ipfsId);
-      }).catch((err) => {
-        console.error(err)
-      })
-
+    displayImage(hash) {
+      document.getElementById('ipfsImage').src = ipfsHttp + "://" + ipfsHost + "/ipfs/" + hash;
     },
+
     async submitText() {
 
       if(this.ipfstext === "") {
@@ -110,16 +97,16 @@ export default {
           let hash = response[0].hash;
           console.log("Hash from IPFS: " + hash);
           await this.saveHashToBlockchain(hash,"");
+          this.displayText()
       }catch(e) {
         console.log("error saving to ipfs and blockchain: " + e);
       }
 
     },
-    async display() {
-      // buffer: true results in the returned result being a buffer rather than a stream
+    async displayText() {
+      // fetch saved hash from blockchain, and call ipfs to get data
       let rows = await this.getHashFromBlockchain();
       let hash = rows[0].text_hash;
-      //let hash = "QmPnnvFkvSCmPvMdMtSNbXrFWQX5XYc4YkcVU4cujyyH8Z";
       ipfs.cat(hash, (err, data) => {
         if (err) { return console.error('ipfs cat error', err) }
         this.ipfsSavedText = data.toString('utf8');
@@ -162,7 +149,7 @@ export default {
         //this.processing = false;
 
       }catch(e) {
-        alert(JSON.parse(e).error.what)
+        console.log(JSON.parse(e).error.what)
         
       }
     }
@@ -192,4 +179,23 @@ li {
 a {
   color: #42b983;
 }
+img {
+  width: 300px;
+  height: 300px;
+}
+.image-section {
+  width:500px;
+  height: 500px;
+  border: 1px;
+  border-style: solid;
+  
+}
+.text-section {
+  width:500px;
+  height: 150px;
+  border: 1px;
+  border-style: solid;
+  margin-bottom: 20px;
+}
+
 </style>
