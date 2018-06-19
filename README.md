@@ -7,6 +7,7 @@ This example shows:
 - Saving an image to IPFS, then storing the hash returned by IPFS on the EOS blockchain
 - fetching the hash from the EOS blockchain, then querying IPFS for the image or text
 
-![IPFS Image](ipfs-eos.png "IPFS Image")
+
+<img src="ipfs-eos.png" alt="IPFS Example" width="400px">
 
 
