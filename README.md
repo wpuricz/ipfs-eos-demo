@@ -8,6 +8,4 @@ This example shows:
 - fetching the hash from the EOS blockchain, then querying IPFS for the image or text
 
 
-<img src="ipfs-eos.png" alt="IPFS Example" width="400px">
-
-
+<img src="ipfs-eos.png" alt="IPFS Example" width="500px"/>
