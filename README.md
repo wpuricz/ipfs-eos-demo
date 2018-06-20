@@ -13,7 +13,7 @@ This example shows:
 
 ### Config
 
-Create a file called secrets.js and add it to the config directory. Paste this into the file:
+Create a file called secrets.js and add it to the config directory. Paste this into the file and add your actual endpoint and keys for the app:
 
 ```
 module.exports = {
