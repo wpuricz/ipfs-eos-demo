@@ -9,3 +9,22 @@ This example shows:
 
 
 <img src="ipfs-eos.png" alt="IPFS Example" width="500px"/>
+
+
+### Config
+
+Create a file called secrets.js and add it to the config directory. Paste this into the file:
+
+```
+module.exports = {
+    endpoint: "http://x.x.x.x:8888",
+    keys: [
+        'keygoeshere,
+        'keygoeshere',
+    ]
+};
+```
+
+Start using: 
+
+    npm run dev
